@@ -1,0 +1,85 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- MODELOS DE ROASTTRACE ---
+
+// 1. Usuarios (Administradores y Clientes)
+model User {
+  id        String   @id @default(uuid()) // Usamos UUID para seguridad en URLs
+  email     String   @unique
+  password  String   // Aquí guardaremos el hash generado con bcrypt
+  name      String
+  role      Role     @default(CLIENT) // Definimos roles (Admin para web, Client para mobile)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  tastings  Tasting[] // Un usuario puede hacer muchas catas
+}
+
+// Enumeración de Roles
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+// 2. Cafeterías / Locales Físicos
+model CoffeeShop {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  city      String   // Ej: Envigado, Sabaneta
+  logoUrl   String?  // Opcional, para el bottom sheet del mapa
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  beans     Bean[]   // Una tienda puede tener muchos granos disponibles
+}
+
+// 3. El Grano / Café (Detalles Técnicos)
+model Bean {
+  id           String      @id @default(uuid())
+  name         String      // Ej: Huila Pacamara
+  farm         String      // Finca o Productor
+  origin       String      // Región/País
+  process      String      // Ej: Lavado, Natural
+  altitude     Int         // m.s.n.m.
+  cupScore     Float?      // Puntuación Q-Grader institucional
+  imageUrl     String?     // Imagen del grano/bolsa
+  shopId       String
+  coffeeShop   CoffeeShop @relation(fields: [shopId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relaciones
+  tastings     Tasting[]   // Un grano puede tener muchas catas de usuarios
+}
+
+// 4. Catas (Los resultados del Radar)
+model Tasting {
+  id        String   @id @default(uuid())
+  
+  // Puntuaciones del Radar (0.0 a 10.0)
+  body       Float
+  acidity    Float
+  sweetness  Float
+  aroma      Float
+  bitterness Float
+  
+  notes     String?  // Comentarios adicionales (opcional)
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  beanId    String
+  bean      Bean     @relation(fields: [beanId], references: [id])
+}
