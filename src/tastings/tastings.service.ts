@@ -6,7 +6,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class TastingsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createTastingDto: CreateTastingDto) {
+  create(createTastingDto: CreateTastingDto, userId: string) {
     return this.prisma.tasting.create({
       data: {
         body: createTastingDto.body,
@@ -16,7 +16,7 @@ export class TastingsService {
         bitterness: createTastingDto.bitterness,
         notes: createTastingDto.notes,
         beanId: createTastingDto.beanId,
-        userId: createTastingDto.userId,
+        userId: userId,
       },
     });
   }

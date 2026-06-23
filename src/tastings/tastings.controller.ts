@@ -3,6 +3,7 @@ import { TastingsService } from './tastings.service';
 import { CreateTastingDto } from './dto/create-tasting.dto';
 import { UpdateTastingDto } from './dto/update-tasting.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @Controller('tastings')
 export class TastingsController {
@@ -10,8 +11,8 @@ export class TastingsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createTastingDto: CreateTastingDto) {
-    return this.tastingsService.create(createTastingDto);
+  create(@Body() createTastingDto: CreateTastingDto, @GetUser() user: { userId: string; email: string }) {
+    return this.tastingsService.create(createTastingDto, user.userId);
   }
 
   @Get()

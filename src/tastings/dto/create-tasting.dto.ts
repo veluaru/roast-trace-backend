@@ -21,7 +21,4 @@ export class CreateTastingDto {
 
   @IsUUID() @IsNotEmpty()
   beanId: string;
-
-  @IsUUID() @IsNotEmpty()
-  userId: string;
 }
